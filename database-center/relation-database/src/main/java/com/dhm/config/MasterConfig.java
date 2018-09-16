@@ -25,24 +25,25 @@ import java.util.Map;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        entityManagerFactoryRef="entityManagerFactoryPrimary",
-        transactionManagerRef="transactionManagerPrimary",
+        entityManagerFactoryRef = "entityManagerFactoryPrimary",
+        transactionManagerRef = "transactionManagerPrimary",
         //设置Repository所在位置
-        basePackages= { "com.dhm.master.repository"})
+        basePackages = {"com.dhm.master.repository"})
 public class MasterConfig {
-	
-    @Autowired @Qualifier("masterDataSource")
+
+    @Autowired
+    @Qualifier("masterDataSource")
     private DataSource primaryDataSource;
-    
+
     @Primary
     @Bean(name = "entityManagerPrimary")
     public EntityManager entityManager(EntityManagerFactoryBuilder builder) {
         return entityManagerFactoryPrimary(builder).getObject().createEntityManager();
     }
-    
+
     @Primary
     @Bean(name = "entityManagerFactoryPrimary")
-    public LocalContainerEntityManagerFactoryBean entityManagerFactoryPrimary (EntityManagerFactoryBuilder builder) {
+    public LocalContainerEntityManagerFactoryBean entityManagerFactoryPrimary(EntityManagerFactoryBuilder builder) {
         return builder
                 .dataSource(primaryDataSource)
                 .properties(getVendorProperties(primaryDataSource))
@@ -51,13 +52,14 @@ public class MasterConfig {
                 .persistenceUnit("primaryPersistenceUnit")
                 .build();
     }
-    
+
     @Autowired
     private JpaProperties jpaProperties;
+
     private Map<String, String> getVendorProperties(DataSource dataSource) {
         return jpaProperties.getHibernateProperties(dataSource);
     }
-    
+
     @Primary
     @Bean(name = "transactionManagerPrimary")
     public PlatformTransactionManager transactionManagerPrimary(EntityManagerFactoryBuilder builder) {

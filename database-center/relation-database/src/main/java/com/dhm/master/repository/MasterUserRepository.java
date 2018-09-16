@@ -10,5 +10,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @Date 2018/9/15 14:28
  */
 public interface MasterUserRepository extends JpaRepository<MasterUser, Long> {
-	
+
 }

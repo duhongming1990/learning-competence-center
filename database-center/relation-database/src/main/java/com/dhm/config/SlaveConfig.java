@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.persistence.EntityManager;
 import javax.sql.DataSource;
 import java.util.Map;
+
 /**
  * @Author duhongming
  * @Email 19919902414@189.cn
@@ -23,22 +24,23 @@ import java.util.Map;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        entityManagerFactoryRef="entityManagerFactorySecondary",
-        transactionManagerRef="transactionManagerSecondary",
+        entityManagerFactoryRef = "entityManagerFactorySecondary",
+        transactionManagerRef = "transactionManagerSecondary",
         //设置Repository所在位置
-        basePackages= { "com.dhm.slave.repository" })
+        basePackages = {"com.dhm.slave.repository"})
 public class SlaveConfig {
-	
-    @Autowired @Qualifier("slaveDataSource")
+
+    @Autowired
+    @Qualifier("slaveDataSource")
     private DataSource secondaryDataSource;
-    
+
     @Bean(name = "entityManagerSecondary")
     public EntityManager entityManager(EntityManagerFactoryBuilder builder) {
         return entityManagerFactorySecondary(builder).getObject().createEntityManager();
     }
-    
+
     @Bean(name = "entityManagerFactorySecondary")
-    public LocalContainerEntityManagerFactoryBean entityManagerFactorySecondary (EntityManagerFactoryBuilder builder) {
+    public LocalContainerEntityManagerFactoryBean entityManagerFactorySecondary(EntityManagerFactoryBuilder builder) {
         return builder
                 .dataSource(secondaryDataSource)
                 .properties(getVendorProperties(secondaryDataSource))
@@ -47,16 +49,17 @@ public class SlaveConfig {
                 .persistenceUnit("secondaryPersistenceUnit")
                 .build();
     }
-    
+
     @Autowired
     private JpaProperties jpaProperties;
+
     private Map<String, String> getVendorProperties(DataSource dataSource) {
         return jpaProperties.getHibernateProperties(dataSource);
     }
-    
+
     @Bean(name = "transactionManagerSecondary")
     PlatformTransactionManager transactionManagerSecondary(EntityManagerFactoryBuilder builder) {
         return new JpaTransactionManager(entityManagerFactorySecondary(builder).getObject());
     }
-    
+
 }

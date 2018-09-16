@@ -32,7 +32,7 @@ public class UserService {
     @Autowired
     private SlaveUserRepository slaveUserRepository;
 
-    public void masterSave(){
+    public void masterSave() {
         masterUserRepository.save(new MasterUser("master_aaa", 10));
         masterUserRepository.save(new MasterUser("master_bbb", 20));
         masterUserRepository.save(new MasterUser("master_ccc", 30));
@@ -40,7 +40,7 @@ public class UserService {
         masterUserRepository.save(new MasterUser("master_eee", 50));
     }
 
-    public void slaveSave(){
+    public void slaveSave() {
         slaveUserRepository.save(new SlaveUser("slave_aaa", 10));
         slaveUserRepository.save(new SlaveUser("slave_bbb", 20));
         slaveUserRepository.save(new SlaveUser("slave_ccc", 30));
@@ -48,14 +48,14 @@ public class UserService {
         slaveUserRepository.save(new SlaveUser("slave_eee", 50));
     }
 
-    public void masterUserCount(){
+    public void masterUserCount() {
         Integer count = masterJdbcTemplate.queryForObject("select count(1) from master_user", Integer.class);
-        System.out.println("masterJdbcTemplate data count:"+count);
+        System.out.println("masterJdbcTemplate data count:" + count);
     }
 
-    public void slaveUserCount(){
+    public void slaveUserCount() {
         Integer count = slaveJdbcTemplate.queryForObject("select count(1) from slave_user", Integer.class);
-        System.out.println("slaveJdbcTemplate data count:"+count);
+        System.out.println("slaveJdbcTemplate data count:" + count);
     }
 
 }
