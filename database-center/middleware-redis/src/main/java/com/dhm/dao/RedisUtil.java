@@ -20,11 +20,12 @@ import java.util.Set;
  * Redis Cache 工具类
  * 1.优化缓存时间的表达式逻辑 2018-03-24
  * 2.通过 protostuff 缓存对象
+ *
  * @author dhm
  * @version 2018-03-28
  */
 @Component
-public class RedisUtil<T>{
+public class RedisUtil<T> {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -34,19 +35,20 @@ public class RedisUtil<T>{
     /**
      * string(字符串)
      * set key value [EX seconds] [PX milliseconds] [NX|XX]
+     *
      * @param key
      * @param value
      * @param cacheSeconds
      * @return
      */
-    public String set(String key, String value, int cacheSeconds){
+    public String set(String key, String value, int cacheSeconds) {
         Jedis jedis = null;
         String result = null;
         try {
             jedis = jedisPool.getResource();
             if (cacheSeconds > 0) {
-                result = jedis.setex(key,cacheSeconds,value);
-            }else{
+                result = jedis.setex(key, cacheSeconds, value);
+            } else {
                 result = jedis.set(key, value);
             }
             logger.debug("setString {} = {}", key, value);
@@ -61,6 +63,7 @@ public class RedisUtil<T>{
     /**
      * string(字符串)
      * get key
+     *
      * @param key
      * @return
      */
@@ -83,9 +86,9 @@ public class RedisUtil<T>{
     }
 
     /**
-     *
      * hash（哈希）
      * hmset key field value [field value ...]
+     *
      * @param key
      * @param value
      * @param cacheSeconds
@@ -115,6 +118,7 @@ public class RedisUtil<T>{
     /**
      * hash（哈希）
      * hgetall key
+     *
      * @param key
      * @return
      */
@@ -138,6 +142,7 @@ public class RedisUtil<T>{
     /**
      * list（列表）
      * rpush key value [value ...]
+     *
      * @param key
      * @param value
      * @param cacheSeconds
@@ -167,6 +172,7 @@ public class RedisUtil<T>{
     /**
      * list（列表）
      * lrange key start stop
+     *
      * @param key
      * @return
      */
@@ -190,6 +196,7 @@ public class RedisUtil<T>{
     /**
      * set（集合）
      * sadd key member [member ...]
+     *
      * @param key
      * @param value
      * @param cacheSeconds
@@ -219,6 +226,7 @@ public class RedisUtil<T>{
     /**
      * set（集合）
      * smembers key
+     *
      * @param key
      * @return
      */
@@ -242,12 +250,13 @@ public class RedisUtil<T>{
     /**
      * zset(sorted set：有序集合）
      * zadd key [NX|XX] [CH] [INCR] score member [score member ...]
+     *
      * @param key
      * @param value
      * @param cacheSeconds
      * @return
      */
-    public long zset(String key, Map<String,Double> value, int cacheSeconds){
+    public long zset(String key, Map<String, Double> value, int cacheSeconds) {
         long result = 0;
         Jedis jedis = null;
         try {
@@ -255,7 +264,7 @@ public class RedisUtil<T>{
             if (jedis.exists(key)) {
                 jedis.del(key);
             }
-            result = jedis.zadd(key,value);
+            result = jedis.zadd(key, value);
             if (cacheSeconds > 0) {
                 jedis.expire(key, cacheSeconds);
             }
@@ -271,6 +280,7 @@ public class RedisUtil<T>{
     /**
      * zset(sorted set：有序集合）
      * zrange key min max [WITHSCORES] [LIMIT offset count]
+     *
      * @param key
      * @return
      */
@@ -280,7 +290,7 @@ public class RedisUtil<T>{
         try {
             jedis = jedisPool.getResource();
             if (jedis.exists(key)) {
-                value = jedis.zrange(key,min,max);
+                value = jedis.zrange(key, min, max);
                 logger.debug("getZset {} = {}", key, value);
             }
         } catch (Exception e) {
@@ -291,23 +301,23 @@ public class RedisUtil<T>{
         return value;
     }
 
-    public void pipeline(Map<String,String> map){
+    public void pipeline(Map<String, String> map) {
         Jedis jedis = null;
-        try{
+        try {
             jedis = jedisPool.getResource();
             Pipeline pipeline = jedis.pipelined();
-            for(Map.Entry<String,String> entry:map.entrySet()){
-                pipeline.set(entry.getKey().getBytes(),entry.getValue().getBytes());
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                pipeline.set(entry.getKey().getBytes(), entry.getValue().getBytes());
             }
             pipeline.sync();
-        }catch (Exception e) {
+        } catch (Exception e) {
             logger.warn("setPipeline {}", map, e);
         } finally {
             jedis.close();
         }
     }
 
-    public String setObject(String key,T t,int cacheSeconds){
+    public String setObject(String key, T t, int cacheSeconds) {
         RuntimeSchema<T> schema = (RuntimeSchema<T>) RuntimeSchema.createFrom(t.getClass());
         byte[] bytes = ProtostuffIOUtil.toByteArray(t,
                 schema,
@@ -315,9 +325,9 @@ public class RedisUtil<T>{
 
         Jedis jedis = null;
         String result = null;
-        try{
+        try {
             jedis = jedisPool.getResource();
-            result = jedis.setex(key.getBytes(),cacheSeconds,bytes);
+            result = jedis.setex(key.getBytes(), cacheSeconds, bytes);
             logger.debug("setObject {} = {}", key, t.getClass());
         } catch (Exception e) {
             logger.warn("setObject {} = {}", key, t.getClass(), e);
@@ -327,7 +337,7 @@ public class RedisUtil<T>{
         return result;
     }
 
-    public T getObject(String key,Class<T> t) {
+    public T getObject(String key, Class<T> t) {
         RuntimeSchema<T> schema = RuntimeSchema.createFrom(t);
         Jedis jedis = null;
         try {
@@ -336,7 +346,7 @@ public class RedisUtil<T>{
             //缓存重获取到
             if (bytes != null) {
                 T tt = schema.newMessage();
-                ProtostuffIOUtil.mergeFrom(bytes,tt, schema);
+                ProtostuffIOUtil.mergeFrom(bytes, tt, schema);
                 //t被反序列化
                 logger.debug("getObject {} = {}", key, t);
                 return tt;
@@ -351,14 +361,14 @@ public class RedisUtil<T>{
 
     /**
      * 尝试获取阻塞分布式锁
-     *
+     * <p>
      * 首先，为了确保分布式锁可用，我们至少要确保锁的实现同时满足以下四个条件：
      * 互斥性。在任意时刻，只有一个客户端能持有锁。
      * 不会发生死锁。即使有一个客户端在持有锁的期间崩溃而没有主动解锁，也能保证后续其他客户端能加锁。
      * 具有容错性。只要大部分的Redis节点正常运行，客户端就可以加锁和解锁。
      * 解铃还须系铃人。加锁和解锁必须是同一个客户端，客户端自己不能把别人加的锁给解了。
      *
-     * @param lockKey 锁
+     * @param lockKey   锁
      * @param requestId 请求标识
      * @return 是否获取成功
      */
@@ -382,14 +392,14 @@ public class RedisUtil<T>{
          *            EX|PX, expire time units: EX = seconds; PX = milliseconds
          * @param time
          *            expire time in the units of <code>expx</code>
-         * @return Status(OK|null) code reply
+         * @return Status(OK | null) code reply
          */
-        for(;;) {
+        for (; ; ) {
 
-            String result = jedisPool.getResource().set(LOCK_PREFIX+lockKey, requestId,
-                    SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME , 10);
+            String result = jedisPool.getResource().set(LOCK_PREFIX + lockKey, requestId,
+                    SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, 10);
 
-            if(LOCK_SUCCESS.equals(result)){
+            if (LOCK_SUCCESS.equals(result)) {
                 break;
             } else {
                 //防止一直消耗 CPU
@@ -404,14 +414,14 @@ public class RedisUtil<T>{
 
     /**
      * 尝试获取非阻塞分布式锁
-     *
+     * <p>
      * 首先，为了确保分布式锁可用，我们至少要确保锁的实现同时满足以下四个条件：
      * 互斥性。在任意时刻，只有一个客户端能持有锁。
      * 不会发生死锁。即使有一个客户端在持有锁的期间崩溃而没有主动解锁，也能保证后续其他客户端能加锁。
      * 具有容错性。只要大部分的Redis节点正常运行，客户端就可以加锁和解锁。
      * 解铃还须系铃人。加锁和解锁必须是同一个客户端，客户端自己不能把别人加的锁给解了。
      *
-     * @param lockKey 锁
+     * @param lockKey   锁
      * @param requestId 请求标识
      * @return 是否获取成功
      */
@@ -435,21 +445,22 @@ public class RedisUtil<T>{
          *            EX|PX, expire time units: EX = seconds; PX = milliseconds
          * @param time
          *            expire time in the units of <code>expx</code>
-         * @return Status(OK|null) code reply
+         * @return Status(OK | null) code reply
          */
-        String result = jedisPool.getResource().set(LOCK_PREFIX+lockKey, requestId,
-                SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME , 10);
+        String result = jedisPool.getResource().set(LOCK_PREFIX + lockKey, requestId,
+                SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, 10);
         return LOCK_SUCCESS.equals(result) ? true : false;
     }
 
 
     /**
      * 释放分布式锁
-     * @param lockKey 锁
+     *
+     * @param lockKey   锁
      * @param requestId 请求标识
      * @return 是否释放成功
      */
-    public  boolean releaseLock(String lockKey, String requestId) {
+    public boolean releaseLock(String lockKey, String requestId) {
         final Long RELEASE_SUCCESS = 1L;
         String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
         Object result = jedisPool.getResource().eval(script, Collections.singletonList(lockKey), Collections.singletonList(requestId));

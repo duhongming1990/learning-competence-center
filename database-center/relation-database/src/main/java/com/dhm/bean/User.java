@@ -1,6 +1,12 @@
-package com.dhm.slave.bean;
+package com.dhm.bean;
 
-import javax.persistence.*;
+
+import org.hibernate.annotations.Entity;
+import org.hibernate.annotations.Table;
+
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 
 /**
  * @Author duhongming
@@ -8,23 +14,23 @@ import javax.persistence.*;
  * @Date 2018/9/15 14:21
  */
 @Entity
-@org.hibernate.annotations.Table(appliesTo = "slave_user", comment = "从库用户表")
-public class SlaveUser {
+@Table(appliesTo = "user", comment = "用户表")
+public class User {
 
     @Id
     @GeneratedValue
     private Long id;
 
-    @Column(nullable = false,columnDefinition="varchar(100) COMMENT '用户名'")
+    @Column(nullable = false, columnDefinition = "varchar(100) COMMENT '用户名'")
     private String userName;
 
-    @Column(nullable = false,columnDefinition="int(3) COMMENT '年龄'")
+    @Column(nullable = false, columnDefinition = "int(3) COMMENT '年龄'")
     private Integer age;
 
-    public SlaveUser() {
+    public User() {
     }
 
-    public SlaveUser(String userName, Integer age) {
+    public User(String userName, Integer age) {
         this.userName = userName;
         this.age = age;
     }

@@ -19,8 +19,8 @@ public class RedisConfig {
                                @Value("${spring.redis.host}") String host,
                                @Value("${spring.redis.port}") int port,
                                @Value("${spring.redis.timeout}") int timeout,
-                               @Value("${spring.redis.password}") String password){
-        return new JedisPool(config,host,port,timeout,password);
+                               @Value("${spring.redis.password}") String password) {
+        return new JedisPool(config, host, port, timeout, password);
     }
 
     @Bean(name = "jedis.pool.config")
@@ -28,7 +28,7 @@ public class RedisConfig {
             @Value("${jedis.pool.config.maxTotal}") int maxTotal,
             @Value("${jedis.pool.config.maxIdle}") int maxIdle,
             @Value("${jedis.pool.config.maxWaitMillis}") int maxWaitMillis,
-            @Value("${jedis.pool.config.testOnBorrow}") boolean testOnBorrow){
+            @Value("${jedis.pool.config.testOnBorrow}") boolean testOnBorrow) {
         JedisPoolConfig config = new JedisPoolConfig();
         config.setMaxTotal(maxTotal);
         config.setMaxIdle(maxIdle);

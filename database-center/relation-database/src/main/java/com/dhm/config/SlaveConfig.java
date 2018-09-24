@@ -27,7 +27,7 @@ import java.util.Map;
         entityManagerFactoryRef = "entityManagerFactorySecondary",
         transactionManagerRef = "transactionManagerSecondary",
         //设置Repository所在位置
-        basePackages = {"com.dhm.slave.repository"})
+        basePackages = {"com.dhm.repository.slave"})
 public class SlaveConfig {
 
     @Autowired
@@ -45,7 +45,7 @@ public class SlaveConfig {
                 .dataSource(secondaryDataSource)
                 .properties(getVendorProperties(secondaryDataSource))
                 //设置实体类所在位置
-                .packages("com.dhm.slave.bean")
+                .packages("com.dhm.bean")
                 .persistenceUnit("secondaryPersistenceUnit")
                 .build();
     }

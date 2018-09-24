@@ -28,7 +28,7 @@ import java.util.Map;
         entityManagerFactoryRef = "entityManagerFactoryPrimary",
         transactionManagerRef = "transactionManagerPrimary",
         //设置Repository所在位置
-        basePackages = {"com.dhm.master.repository"})
+        basePackages = {"com.dhm.repository.master"})
 public class MasterConfig {
 
     @Autowired
@@ -48,7 +48,7 @@ public class MasterConfig {
                 .dataSource(primaryDataSource)
                 .properties(getVendorProperties(primaryDataSource))
                 //设置实体类所在位置
-                .packages("com.dhm.master.bean")
+                .packages("com.dhm.bean")
                 .persistenceUnit("primaryPersistenceUnit")
                 .build();
     }
