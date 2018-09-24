@@ -1,6 +1,5 @@
-package com.dhm;
+package com.dhm.mq;
 
-import com.dhm.mq.Sender;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

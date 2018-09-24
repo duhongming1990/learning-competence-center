@@ -25,6 +25,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.38</version>
+        </dependency>
+        <dependency>
             <groupId>com.dhm</groupId>
             <artifactId>relation-database</artifactId>
             <version>1.0.1</version>
@@ -32,6 +37,11 @@
         <dependency>
             <groupId>com.dhm</groupId>
             <artifactId>middleware-redis</artifactId>
+            <version>0.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.dhm</groupId>
+            <artifactId>middleware-rabbitmq</artifactId>
             <version>0.0.1</version>
         </dependency>
     </dependencies>

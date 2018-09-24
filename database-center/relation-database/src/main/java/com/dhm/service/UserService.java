@@ -48,12 +48,12 @@ public class UserService {
     }
 
     public void masterUserCount() {
-        Integer count = masterJdbcTemplate.queryForObject("select count(1) from master_user", Integer.class);
+        Integer count = masterJdbcTemplate.queryForObject("select count(1) from user", Integer.class);
         System.out.println("masterJdbcTemplate data count:" + count);
     }
 
     public void slaveUserCount() {
-        Integer count = slaveJdbcTemplate.queryForObject("select count(1) from slave_user", Integer.class);
+        Integer count = slaveJdbcTemplate.queryForObject("select count(1) from user", Integer.class);
         System.out.println("slaveJdbcTemplate data count:" + count);
     }
 

@@ -1,10 +1,9 @@
 package com.dhm.bean;
 
 
-import org.hibernate.annotations.Entity;
 import org.hibernate.annotations.Table;
-
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
