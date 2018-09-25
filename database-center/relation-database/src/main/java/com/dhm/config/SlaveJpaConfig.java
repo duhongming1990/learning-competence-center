@@ -6,7 +6,6 @@ import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -20,36 +19,34 @@ import java.util.Map;
 /**
  * @Author duhongming
  * @Email 19919902414@189.cn
- * @Date 2018/9/15 14:13
+ * @Date 2018/9/15 14:17
  */
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        entityManagerFactoryRef = "entityManagerFactoryPrimary",
-        transactionManagerRef = "transactionManagerPrimary",
+        entityManagerFactoryRef = "entityManagerFactorySecondary",
+        transactionManagerRef = "transactionManagerSecondary",
         //设置Repository所在位置
-        basePackages = {"com.dhm.repository.master"})
-public class MasterConfig {
+        basePackages = {"com.dhm.repository.slave"})
+public class SlaveJpaConfig {
 
     @Autowired
-    @Qualifier("masterDataSource")
-    private DataSource primaryDataSource;
+    @Qualifier(DataSources.SLAVE_DATA_SOURCE)
+    private DataSource secondaryDataSource;
 
-    @Primary
-    @Bean(name = "entityManagerPrimary")
+    @Bean(name = "entityManagerSecondary")
     public EntityManager entityManager(EntityManagerFactoryBuilder builder) {
-        return entityManagerFactoryPrimary(builder).getObject().createEntityManager();
+        return entityManagerFactorySecondary(builder).getObject().createEntityManager();
     }
 
-    @Primary
-    @Bean(name = "entityManagerFactoryPrimary")
-    public LocalContainerEntityManagerFactoryBean entityManagerFactoryPrimary(EntityManagerFactoryBuilder builder) {
+    @Bean(name = "entityManagerFactorySecondary")
+    public LocalContainerEntityManagerFactoryBean entityManagerFactorySecondary(EntityManagerFactoryBuilder builder) {
         return builder
-                .dataSource(primaryDataSource)
-                .properties(getVendorProperties(primaryDataSource))
+                .dataSource(secondaryDataSource)
+                .properties(getVendorProperties(secondaryDataSource))
                 //设置实体类所在位置
                 .packages("com.dhm.bean")
-                .persistenceUnit("primaryPersistenceUnit")
+                .persistenceUnit("secondaryPersistenceUnit")
                 .build();
     }
 
@@ -60,9 +57,9 @@ public class MasterConfig {
         return jpaProperties.getHibernateProperties(dataSource);
     }
 
-    @Primary
-    @Bean(name = "transactionManagerPrimary")
-    public PlatformTransactionManager transactionManagerPrimary(EntityManagerFactoryBuilder builder) {
-        return new JpaTransactionManager(entityManagerFactoryPrimary(builder).getObject());
+    @Bean(name = "transactionManagerSecondary")
+    PlatformTransactionManager transactionManagerSecondary(EntityManagerFactoryBuilder builder) {
+        return new JpaTransactionManager(entityManagerFactorySecondary(builder).getObject());
     }
+
 }

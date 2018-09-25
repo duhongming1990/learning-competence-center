@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -19,34 +20,36 @@ import java.util.Map;
 /**
  * @Author duhongming
  * @Email 19919902414@189.cn
- * @Date 2018/9/15 14:17
+ * @Date 2018/9/15 14:13
  */
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        entityManagerFactoryRef = "entityManagerFactorySecondary",
-        transactionManagerRef = "transactionManagerSecondary",
+        entityManagerFactoryRef = "entityManagerFactoryPrimary",
+        transactionManagerRef = "transactionManagerPrimary",
         //设置Repository所在位置
-        basePackages = {"com.dhm.repository.slave"})
-public class SlaveConfig {
+        basePackages = {"com.dhm.repository.master"})
+public class MasterJpaConfig {
 
     @Autowired
-    @Qualifier("slaveDataSource")
-    private DataSource secondaryDataSource;
+    @Qualifier(DataSources.MASTER_DATA_SOURCE)
+    private DataSource primaryDataSource;
 
-    @Bean(name = "entityManagerSecondary")
+    @Primary
+    @Bean(name = "entityManagerPrimary")
     public EntityManager entityManager(EntityManagerFactoryBuilder builder) {
-        return entityManagerFactorySecondary(builder).getObject().createEntityManager();
+        return entityManagerFactoryPrimary(builder).getObject().createEntityManager();
     }
 
-    @Bean(name = "entityManagerFactorySecondary")
-    public LocalContainerEntityManagerFactoryBean entityManagerFactorySecondary(EntityManagerFactoryBuilder builder) {
+    @Primary
+    @Bean(name = "entityManagerFactoryPrimary")
+    public LocalContainerEntityManagerFactoryBean entityManagerFactoryPrimary(EntityManagerFactoryBuilder builder) {
         return builder
-                .dataSource(secondaryDataSource)
-                .properties(getVendorProperties(secondaryDataSource))
+                .dataSource(primaryDataSource)
+                .properties(getVendorProperties(primaryDataSource))
                 //设置实体类所在位置
                 .packages("com.dhm.bean")
-                .persistenceUnit("secondaryPersistenceUnit")
+                .persistenceUnit("primaryPersistenceUnit")
                 .build();
     }
 
@@ -57,9 +60,9 @@ public class SlaveConfig {
         return jpaProperties.getHibernateProperties(dataSource);
     }
 
-    @Bean(name = "transactionManagerSecondary")
-    PlatformTransactionManager transactionManagerSecondary(EntityManagerFactoryBuilder builder) {
-        return new JpaTransactionManager(entityManagerFactorySecondary(builder).getObject());
+    @Primary
+    @Bean(name = "transactionManagerPrimary")
+    public PlatformTransactionManager transactionManagerPrimary(EntityManagerFactoryBuilder builder) {
+        return new JpaTransactionManager(entityManagerFactoryPrimary(builder).getObject());
     }
-
 }
