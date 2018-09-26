@@ -18,4 +18,17 @@ public class RabbitConfig {
         return new Queue("hello");
     }
 
+    @Bean
+    public Queue queueAdd() {
+        return new Queue("org.add");
+    }
+    @Bean
+    public Queue queueUpdate() {
+        return new Queue("org.update");
+    }
+    @Bean
+    public Queue queueDelete() {
+        return new Queue("org.delete");
+    }
+
 }

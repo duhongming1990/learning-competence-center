@@ -1,10 +1,6 @@
 package com.dhm.mq;
 
-import com.dhm.repository.slave.SlaveOrganizationRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.rabbit.annotation.RabbitHandler;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -14,17 +10,17 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-@RabbitListener(queues = "org.delete")
+//@RabbitListener(queues = "org.delete")
 public class OrgDeleteReceiver {
 
-    @Autowired
-    private SlaveOrganizationRepository slaveOrganizationRepository;
-
-    @RabbitHandler
-    public void process(String id) {
-        log.info("delete:{}",id);
-        slaveOrganizationRepository.delete(Long.parseLong(id));
-        log.info("从库删除成功！");
-    }
+//    @Autowired
+//    private SlaveOrganizationRepository slaveOrganizationRepository;
+//
+//    @RabbitHandler
+//    public void process(String id) {
+//        log.info("delete:{}",id);
+//        slaveOrganizationRepository.delete(Long.parseLong(id));
+//        log.info("从库删除成功！");
+//    }
 
 }

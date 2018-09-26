@@ -359,112 +359,17 @@ public class RedisUtil<T> {
         return null;
     }
 
-    /**
-     * 尝试获取阻塞分布式锁
-     * <p>
-     * 首先，为了确保分布式锁可用，我们至少要确保锁的实现同时满足以下四个条件：
-     * 互斥性。在任意时刻，只有一个客户端能持有锁。
-     * 不会发生死锁。即使有一个客户端在持有锁的期间崩溃而没有主动解锁，也能保证后续其他客户端能加锁。
-     * 具有容错性。只要大部分的Redis节点正常运行，客户端就可以加锁和解锁。
-     * 解铃还须系铃人。加锁和解锁必须是同一个客户端，客户端自己不能把别人加的锁给解了。
-     *
-     * @param lockKey   锁
-     * @param requestId 请求标识
-     * @return 是否获取成功
-     */
-    public void tryGetBlockLock(String lockKey, String requestId) {
-
-        final String LOCK_PREFIX = "distribution-lock:redis:";
-        final String SET_IF_NOT_EXIST = "NX";
-        final String SET_WITH_EXPIRE_TIME = "EX";
-        final String LOCK_SUCCESS = "OK";
-
-        /**
-         * Set the string value as value of the key. The string can't be longer than
-         * 1073741824 bytes (1 GB).
-         *
-         * @param key
-         * @param value
-         * @param nxxx
-         *            NX|XX, NX -- Only set the key if it does not already exist. XX --
-         *            Only set the key if it already exist.
-         * @param expx
-         *            EX|PX, expire time units: EX = seconds; PX = milliseconds
-         * @param time
-         *            expire time in the units of <code>expx</code>
-         * @return Status(OK | null) code reply
-         */
-        for (; ; ) {
-
-            String result = jedisPool.getResource().set(LOCK_PREFIX + lockKey, requestId,
-                    SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, 10);
-
-            if (LOCK_SUCCESS.equals(result)) {
-                break;
-            } else {
-                //防止一直消耗 CPU
-                try {
-                    Thread.sleep(5);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
+    public Long incr(String key) {
+        Jedis jedis = null;
+        Long value = 0L;
+        try {
+            jedis = jedisPool.getResource();
+            value = jedis.incr(key);
+        } catch (Exception e) {
+            logger.warn("incr {} = {}", key, value, e);
+        } finally {
+            jedis.close();
         }
-    }
-
-    /**
-     * 尝试获取非阻塞分布式锁
-     * <p>
-     * 首先，为了确保分布式锁可用，我们至少要确保锁的实现同时满足以下四个条件：
-     * 互斥性。在任意时刻，只有一个客户端能持有锁。
-     * 不会发生死锁。即使有一个客户端在持有锁的期间崩溃而没有主动解锁，也能保证后续其他客户端能加锁。
-     * 具有容错性。只要大部分的Redis节点正常运行，客户端就可以加锁和解锁。
-     * 解铃还须系铃人。加锁和解锁必须是同一个客户端，客户端自己不能把别人加的锁给解了。
-     *
-     * @param lockKey   锁
-     * @param requestId 请求标识
-     * @return 是否获取成功
-     */
-    public Boolean tryGetNonBlockLock(String lockKey, String requestId) {
-
-        final String LOCK_PREFIX = "distribution-lock:redis:";
-        final String SET_IF_NOT_EXIST = "NX";
-        final String SET_WITH_EXPIRE_TIME = "EX";
-        final String LOCK_SUCCESS = "OK";
-
-        /**
-         * Set the string value as value of the key. The string can't be longer than
-         * 1073741824 bytes (1 GB).
-         *
-         * @param key
-         * @param value
-         * @param nxxx
-         *            NX|XX, NX -- Only set the key if it does not already exist. XX --
-         *            Only set the key if it already exist.
-         * @param expx
-         *            EX|PX, expire time units: EX = seconds; PX = milliseconds
-         * @param time
-         *            expire time in the units of <code>expx</code>
-         * @return Status(OK | null) code reply
-         */
-        String result = jedisPool.getResource().set(LOCK_PREFIX + lockKey, requestId,
-                SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, 10);
-        return LOCK_SUCCESS.equals(result) ? true : false;
-    }
-
-
-    /**
-     * 释放分布式锁
-     *
-     * @param lockKey   锁
-     * @param requestId 请求标识
-     * @return 是否释放成功
-     */
-    public boolean releaseLock(String lockKey, String requestId) {
-        final Long RELEASE_SUCCESS = 1L;
-        String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
-        Object result = jedisPool.getResource().eval(script, Collections.singletonList(lockKey), Collections.singletonList(requestId));
-        return RELEASE_SUCCESS.equals(result) ? true : false;
-
+        return value;
     }
 }

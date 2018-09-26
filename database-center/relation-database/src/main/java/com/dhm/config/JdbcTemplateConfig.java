@@ -30,7 +30,7 @@ public class JdbcTemplateConfig {
 
     @Bean(name = "slaveJdbcTemplate")
     public JdbcTemplate slaveJdbcTemplate() {
-        return new JdbcTemplate(slaveDataSource);
+        return new JdbcTemplate(slaveDataSource,true);
     }
 
 }

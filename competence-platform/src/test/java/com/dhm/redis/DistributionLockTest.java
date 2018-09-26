@@ -1,6 +1,8 @@
 package com.dhm.redis;
 
 import com.dhm.dao.RedisUtil;
+import com.dhm.locks.DistributedLock;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +20,16 @@ import java.util.concurrent.Executors;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@Slf4j
 public class DistributionLockTest {
 
     private static int count = 0;
 
     @Autowired
-    private RedisUtil redisUtil;
+    private DistributedLock distributedLock;
+
+    @Autowired
+    RedisUtil redisUtil;
 
     @Test
     public void testBlockDistributionLock() throws InterruptedException {
@@ -32,18 +38,22 @@ public class DistributionLockTest {
         ExecutorService executorService = Executors.newFixedThreadPool(availProcessors);
         CountDownLatch countDownLatch = new CountDownLatch(1000);
         for (int i = 0; i < 1000; i++) {
-            executorService.submit(()->{
-                redisUtil.tryGetNonBlockLock("lockKey","0000-0000");
-                System.out.println("Thread.currentThread().getName()开始 = " + Thread.currentThread().getName());
-                count++;
-                System.out.println("Thread.currentThread().getName()结束 = " + Thread.currentThread().getName());
-                redisUtil.releaseLock("lockKey","0000-0000");
+            executorService.submit(() -> {
+
+                distributedLock.tryGetBlockLock("lockKey");
+                log.info("Thread.currentThread().getName()开始 = {}", Thread.currentThread().getName());
+                redisUtil.incr("already_coount");
+                log.info("Thread.currentThread().getName()结束 = {},已执行 = {}", Thread.currentThread().getName());
                 countDownLatch.countDown();
+
+                if(distributedLock.releaseLock("lockKey")){
+                    log.info("剩余执行数量：{}",countDownLatch.getCount());
+                }
             });
         }
         countDownLatch.await();
         executorService.shutdown();
-        System.out.println("count = " + count);
+        log.info("count = {}", redisUtil.get("already_coount"));
     }
 
 }

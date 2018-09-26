@@ -39,11 +39,11 @@
             <artifactId>middleware-redis</artifactId>
             <version>0.0.1</version>
         </dependency>
-        <dependency>
+       <!-- <dependency>
             <groupId>com.dhm</groupId>
             <artifactId>middleware-rabbitmq</artifactId>
             <version>0.0.1</version>
-        </dependency>
+        </dependency>-->
     </dependencies>
 
     <build>

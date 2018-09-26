@@ -26,20 +26,16 @@ public class DataSourceConfig {
 
     //destroy-method="close"的作用是当数据库连接不使用的时候,就把该连接重新放到数据池中,方便下次使用调用.
     @Bean(destroyMethod = "close", name = DataSources.MASTER_DATA_SOURCE)
-    @Qualifier(DataSources.MASTER_DATA_SOURCE)
     @ConfigurationProperties(prefix = "spring.datasource.master")
     @Primary
     public DataSource masterDataSource() {
-//        return DataSourceBuilder.create().build();
         return DataSourceBuilder.create().type(DruidDataSource.class).build();
     }
 
     //destroy-method="close"的作用是当数据库连接不使用的时候,就把该连接重新放到数据池中,方便下次使用调用.
     @Bean(destroyMethod = "close", name = DataSources.SLAVE_DATA_SOURCE)
-    @Qualifier(DataSources.SLAVE_DATA_SOURCE)
     @ConfigurationProperties(prefix = "spring.datasource.slave")
     public DataSource slaveDataSource() {
-//        return DataSourceBuilder.create().build();
         return DataSourceBuilder.create().type(DruidDataSource.class).build();
     }
 

@@ -11,12 +11,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest
 public class MiddlewareRabbitmqApplicationTest {
 
-    @Autowired
-    private Sender sender;
-
-    @Test
-    public void hello() throws Exception {
-        sender.send();
-    }
+//    @Autowired
+//    private Sender sender;
+//
+//    @Test
+//    public void hello() throws Exception {
+//        sender.send();
+//    }
 
 }
