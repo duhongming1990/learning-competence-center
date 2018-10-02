@@ -25,7 +25,7 @@ import java.util.Set;
  * @version 2018-03-28
  */
 @Component
-public class RedisUtil<T> {
+public class RedisDao<T> {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 

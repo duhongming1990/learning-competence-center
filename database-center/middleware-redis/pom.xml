@@ -33,6 +33,11 @@
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
 
@@ -62,6 +67,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.16.18</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
@@ -69,11 +80,80 @@
     </dependencies>
 
     <build>
+        <!--<resources>-->
+            <!--&lt;!&ndash; java代码中properties配置文件不打包 &ndash;&gt;-->
+            <!--<resource>-->
+                <!--<directory>src/main/java</directory>-->
+                <!--<excludes>-->
+                    <!--<exclude>**/*.properties</exclude>-->
+                <!--</excludes>-->
+                <!--<filtering>false</filtering>-->
+            <!--</resource>-->
+            <!--&lt;!&ndash; resources资源中properties配置文件不打包 &ndash;&gt;-->
+            <!--<resource>-->
+                <!--<directory>src/main/resources</directory>-->
+                <!--<excludes>-->
+                    <!--<exclude>**/*.properties</exclude>-->
+                <!--</excludes>-->
+                <!--<filtering>false</filtering>-->
+            <!--</resource>-->
+        <!--</resources>-->
         <plugins>
+            <!--编译打包-->
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source><!-- 源代码使用的JDK版本 -->
+                    <target>1.8</target><!-- 需要生成的目标class文件的编译版本 -->
+                    <encoding>UTF-8</encoding><!-- 字符集编码 -->
+                </configuration>
             </plugin>
+            <!--源码打包-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!--发布打包-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>middleware-redis</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals><!-- 打包的后缀 -->
+                            <phase>package</phase><!-- life的多个阶段 ，预打包 -->
+                            <configuration>
+                                <outputDirectory>target</outputDirectory>
+                                <classifier>config</classifier><!--- ***-config.jar -->
+                                <excludes>
+                                    <exclude>**/MiddlewareRedisApplication.*</exclude>
+                                </excludes>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>all</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                            <phase>package</phase>
+                            <configuration>
+                                <classifier>all</classifier><!-- ***-all.jar -->
+                            </configuration>
+                        </execution>
+                    </executions>
+            </plugin>
+
         </plugins>
     </build>
 

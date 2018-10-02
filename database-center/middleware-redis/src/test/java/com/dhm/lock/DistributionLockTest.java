@@ -1,7 +1,6 @@
-package com.dhm.redis;
+package com.dhm.lock;
 
-import com.dhm.dao.RedisUtil;
-import com.dhm.locks.DistributedLock;
+import com.dhm.dao.RedisDao;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,10 +25,10 @@ public class DistributionLockTest {
     private static int count = 0;
 
     @Autowired
-    private DistributedLock distributedLock;
+    private DistributionLock distributionLock;
 
     @Autowired
-    RedisUtil redisUtil;
+    RedisDao redisDao;
 
     @Test
     public void testBlockDistributionLock() throws InterruptedException {
@@ -40,20 +39,22 @@ public class DistributionLockTest {
         for (int i = 0; i < 1000; i++) {
             executorService.submit(() -> {
 
-                distributedLock.tryGetBlockLock("lockKey");
+                //获取锁-阻塞
+                distributionLock.tryGetBlockLock("lockKey",2000L);
                 log.info("Thread.currentThread().getName()开始 = {}", Thread.currentThread().getName());
-                redisUtil.incr("already_coount");
+                redisDao.incr("already_coount");
                 log.info("Thread.currentThread().getName()结束 = {},已执行 = {}", Thread.currentThread().getName());
                 countDownLatch.countDown();
 
-                if(distributedLock.releaseLock("lockKey")){
+                //释放锁
+                if(distributionLock.releaseLock("lockKey")){
                     log.info("剩余执行数量：{}",countDownLatch.getCount());
                 }
             });
         }
         countDownLatch.await();
         executorService.shutdown();
-        log.info("count = {}", redisUtil.get("already_coount"));
+        log.info("count = {}", redisDao.get("already_coount"));
     }
 
 }

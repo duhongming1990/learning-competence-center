@@ -23,7 +23,7 @@ public class StringRedisTemplateTest {
     @Test
     public void test(){
         // 保存字符串
-        stringRedisTemplate.opsForValue().set("aaa", "111");
-        Assert.assertEquals("111", stringRedisTemplate.opsForValue().get("aaa"));
+        stringRedisTemplate.opsForValue().set("stringRedisTemplate", "stringRedisTemplate");
+        Assert.assertEquals("stringRedisTemplate", stringRedisTemplate.opsForValue().get("stringRedisTemplate"));
     }
 }

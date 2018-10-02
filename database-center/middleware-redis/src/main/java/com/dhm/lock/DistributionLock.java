@@ -1,4 +1,4 @@
-package com.dhm.locks;
+package com.dhm.lock;
 
 import com.alibaba.fastjson.JSON;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +15,11 @@ import java.util.UUID;
  * @Date 2018/9/26 11:38
  */
 @Component
-public class DistributedLock {
+public class DistributionLock {
     private final ThreadLocal<Lock> lockThreadLocal = new ThreadLocal<>();
     private final String LOCK_PREFIX = "distribution-lock:redis:";
     private final String SET_IF_NOT_EXIST = "NX";
-    private final String SET_WITH_EXPIRE_TIME = "EX";
+    private final String SET_WITH_EXPIRE_TIME = "PX";
     private final String LOCK_SUCCESS = "OK";
     private final long INTERVAL_TIMES = 200; //下一次重试等待，单位毫秒
     @Autowired
@@ -37,7 +37,7 @@ public class DistributedLock {
      * @param lockKey 锁
      * @return 是否获取成功
      */
-    public Boolean tryGetBlockLock(String lockKey) {
+    public Boolean tryGetBlockLock(String lockKey,Long maxLockTime) {
 
         /**
          * Set the string value as value of the key. The string can't be longer than
@@ -60,7 +60,7 @@ public class DistributedLock {
             jedis = jedisPool.getResource();
             for (; ; ) {
                 String result = jedis.set(LOCK_PREFIX + lockKey, nLock.toString(),
-                        SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, 10);
+                        SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, maxLockTime);
 
                 if (LOCK_SUCCESS.equals(result)) {
                     lockThreadLocal.set(nLock);
@@ -92,7 +92,7 @@ public class DistributedLock {
      * @param lockKey 锁
      * @return 是否获取成功
      */
-    public Boolean tryGetNonBlockLock(String lockKey) {
+    public Boolean tryGetNonBlockLock(String lockKey,Long maxLockTime) {
         /**
          * Set the string value as value of the key. The string can't be longer than
          * 1073741824 bytes (1 GB).
@@ -114,7 +114,7 @@ public class DistributedLock {
         try {
             jedis = jedisPool.getResource();
             result = jedis.set(LOCK_PREFIX + lockKey, nLock.toString(),
-                    SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, 10);
+                    SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, maxLockTime);
         } finally {
             jedis.close();
         }

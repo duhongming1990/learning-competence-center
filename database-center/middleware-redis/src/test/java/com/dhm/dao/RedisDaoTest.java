@@ -1,6 +1,5 @@
-package com.dhm.redis;
+package com.dhm.dao;
 
-import com.dhm.dao.RedisUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,25 +7,29 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.*;
-
+/**
+ * @Author duhongming
+ * @Email 19919902414@189.cn
+ * @Date 2018/10/2 18:51
+ */
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class RedisUtilTest {
+public class RedisDaoTest {
     @Autowired
-    private RedisUtil redisUtil;
+    private RedisDao redisDao;
     @Test
     public void contextLoads() {
         //String
-        String string_result = redisUtil.set("string_key","string_value",0);
-        String string_value = redisUtil.get("string_key");
+        String string_result = redisDao.set("string_key","string_value",0);
+        String string_value = redisDao.get("string_key");
 
         //Map
         Map<String,String> map = new HashMap<>();
         map.put("map_key1","map_value1");
         map.put("map_key2","map_value2");
         map.put("map_key3","map_value3");
-        String map_result = redisUtil.hmset("map_key",map,0);
-        Map<String,String> map_value = redisUtil.hgetAll("map_key");
+        String map_result = redisDao.hmset("map_key",map,0);
+        Map<String,String> map_value = redisDao.hgetAll("map_key");
 
         //List
         List<String> list = new ArrayList<>();
@@ -34,8 +37,8 @@ public class RedisUtilTest {
         list.add("list_value2");
         list.add("list_value3");
         list.add("list_value4");
-        long list_result = redisUtil.rpush("list_key",list,0);
-        List<String> list_value = redisUtil.lrange("list_key");
+        long list_result = redisDao.rpush("list_key",list,0);
+        List<String> list_value = redisDao.lrange("list_key");
 
         //Set
         Set<String> set = new HashSet<>();
@@ -43,16 +46,16 @@ public class RedisUtilTest {
         set.add("set_value2");
         set.add("set_value3");
         set.add("set_value4");
-        long set_result = redisUtil.sadd("set_key",set,0);
-        Set<String> set_value = redisUtil.smembers("set_key");
+        long set_result = redisDao.sadd("set_key",set,0);
+        Set<String> set_value = redisDao.smembers("set_key");
 
         //Zset
         Map<String,Double> zset = new HashMap<>();
         zset.put("map_key1",10.1);
         zset.put("map_key2",9.8);
         zset.put("map_key3",10.5);
-        long zset_result = redisUtil.zset("zset_key",zset,0);
-        Set<String> zset_value = redisUtil.zrange("zset_key",0,2);
+        long zset_result = redisDao.zset("zset_key",zset,0);
+        Set<String> zset_value = redisDao.zrange("zset_key",0,2);
 
         //pipeline
         Map<String,String> pipeline = new HashMap<>();
@@ -60,7 +63,7 @@ public class RedisUtilTest {
         pipeline.put("pipeline_key2","pipeline_value2");
         pipeline.put("pipeline_key3","pipeline_value3");
         pipeline.put("pipeline_key4","pipeline_value4");
-        redisUtil.pipeline(pipeline);
+        redisDao.pipeline(pipeline);
 
     }
 
