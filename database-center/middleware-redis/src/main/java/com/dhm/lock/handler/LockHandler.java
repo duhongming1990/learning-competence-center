@@ -1,9 +1,7 @@
 package com.dhm.lock.handler;
 
 
-import com.dhm.dao.RedisClient;
 import com.dhm.lock.DistributionLock;
-import com.dhm.lock.RedisLock;
 import com.dhm.lock.annotion.SharedLock;
 import com.dhm.lock.exception.LockException;
 import lombok.extern.slf4j.Slf4j;
@@ -35,8 +33,9 @@ public class LockHandler {
 
     private static ThreadLocal<Integer> retryCountHolder = new ThreadLocal<>();
 
+
     @Autowired
-    private RedisClient redisClient;
+    private DistributionLock distributionLock;
 
     @Pointcut("@annotation(com.dhm.lock.annotion.SharedLock)")
     public void lockPoint(){
@@ -84,9 +83,8 @@ public class LockHandler {
             }
         }
 
-        RedisLock redisLock = RedisLock.build(redisClient, key,lock.maxLockTime());
         try{
-            boolean l = redisLock.lock();
+            boolean l = distributionLock.tryGetNonBlockLock(key,lock.maxLockTime());
             if(l){
                 try {
                     Object proceed = jp.proceed();
@@ -114,6 +112,7 @@ public class LockHandler {
                     else{
                         retryTimes ++;
                     }
+                    log.info("尝试获取锁:{},失败次数:{}",key,retryTimes);
                     retryCountHolder.set(retryTimes);
                     try{
                         Thread.sleep(lock.waitTime());
@@ -127,7 +126,7 @@ public class LockHandler {
             return null;
 
         }finally {
-            redisLock.unlock();
+            distributionLock.releaseLock(key);
         }
 
     }

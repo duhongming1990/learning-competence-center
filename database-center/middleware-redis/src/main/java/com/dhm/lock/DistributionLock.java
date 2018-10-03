@@ -37,7 +37,7 @@ public class DistributionLock {
      * @param lockKey 锁
      * @return 是否获取成功
      */
-    public Boolean tryGetBlockLock(String lockKey,Long maxLockTime) {
+    public Boolean tryGetBlockLock(String lockKey, Long maxLockTime) {
 
         /**
          * Set the string value as value of the key. The string can't be longer than
@@ -92,7 +92,7 @@ public class DistributionLock {
      * @param lockKey 锁
      * @return 是否获取成功
      */
-    public Boolean tryGetNonBlockLock(String lockKey,Long maxLockTime) {
+    public Boolean tryGetNonBlockLock(String lockKey, Long maxLockTime) {
         /**
          * Set the string value as value of the key. The string can't be longer than
          * 1073741824 bytes (1 GB).
@@ -135,18 +135,20 @@ public class DistributionLock {
      */
     public boolean releaseLock(String lockKey) {
         Lock cLock = lockThreadLocal.get();
-        Object result;
-        Jedis jedis = null;
-        try {
-            jedis = jedisPool.getResource();
-            String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
-            result = jedis.eval(script, Collections.singletonList(LOCK_PREFIX + lockKey), Collections.singletonList(cLock.toString()));
-        } finally {
-            jedis.close();
-        }
-        if (((Long) result) == 1L) {
-            lockThreadLocal.remove();
-            return true;
+        if (cLock != null) {
+            Object result;
+            Jedis jedis = null;
+            try {
+                jedis = jedisPool.getResource();
+                String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
+                result = jedis.eval(script, Collections.singletonList(LOCK_PREFIX + lockKey), Collections.singletonList(cLock.toString()));
+            } finally {
+                jedis.close();
+            }
+            if (((Long) result) == 1L) {
+                lockThreadLocal.remove();
+                return true;
+            }
         }
         return false;
     }

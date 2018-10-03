@@ -23,12 +23,18 @@ public class SharedLockServiceTest {
     public void testLockWithThrowExceptionPolicy(){
         int availProcessors = Runtime.getRuntime().availableProcessors();
         ExecutorService executorService = Executors.newFixedThreadPool(availProcessors);
-        CountDownLatch countDownLatch = new CountDownLatch(10);
-        for(int i=0;i<10;i++){
+        CountDownLatch countDownLatch = new CountDownLatch(2);
+        for(int i=0;i<2;i++){
             executorService.submit(()->{
-                sharedLockService.lockWithThrowExceptionPolicy("lockWithThrowExceptionPolicy");
-                countDownLatch.countDown();
-                log.info("剩余执行数量：{}",countDownLatch.getCount());
+                try {
+                    sharedLockService.lockWithThrowExceptionPolicy("lockWithThrowExceptionPolicy");
+                    log.info("线程ID：{}，获取锁：lockWithThrowExceptionPolicy成功！",Thread.currentThread().getId());
+                }catch(Exception e){
+                    log.error("线程ID：{}，获取锁失败：{}",Thread.currentThread().getId(),e);
+                }finally {
+                    countDownLatch.countDown();
+                    log.info("剩余执行数量：{}",countDownLatch.getCount());
+                }
             });
         }
         try {
@@ -40,34 +46,52 @@ public class SharedLockServiceTest {
     }
 
     @Test
-    public void testLockWithDoNothingPolicy() throws InterruptedException {
+    public void testLockWithDoNothingPolicy(){
         int availProcessors = Runtime.getRuntime().availableProcessors();
         ExecutorService executorService = Executors.newFixedThreadPool(availProcessors);
-        CountDownLatch countDownLatch = new CountDownLatch(1000);
-        for(int i=0;i<1000;i++){
+        CountDownLatch countDownLatch = new CountDownLatch(2);
+        for(int i=0;i<2;i++){
             executorService.submit(()->{
-                sharedLockService.lockWithDoNothingPolicy("lockWithDoNothingPolicy");
-                countDownLatch.countDown();
-                log.info("剩余执行数量：{}",countDownLatch.getCount());
+                try {
+                    sharedLockService.lockWithDoNothingPolicy("lockWithThrowExceptionPolicy");
+                    log.info("线程ID：{}，获取锁：lockWithThrowExceptionPolicy！",Thread.currentThread().getId());
+                }finally {
+                    countDownLatch.countDown();
+                    log.info("剩余执行数量：{}",countDownLatch.getCount());
+                }
             });
         }
-        countDownLatch.await();
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         executorService.shutdown();
     }
 
     @Test
-    public void testLockWaitAndRetryPolicy() throws InterruptedException {
+    public void testLockWaitAndRetryPolicy() {
         int availProcessors = Runtime.getRuntime().availableProcessors();
         ExecutorService executorService = Executors.newFixedThreadPool(availProcessors);
-        CountDownLatch countDownLatch = new CountDownLatch(1000);
-        for(int i=0;i<1000;i++){
+        CountDownLatch countDownLatch = new CountDownLatch(2);
+        for(int i=0;i<2;i++){
             executorService.submit(()->{
-                sharedLockService.lockWaitAndRetryPolicy("lockWaitAndRetryPolicy");
-                countDownLatch.countDown();
-                log.info("剩余执行数量：{}",countDownLatch.getCount());
+                try {
+                    sharedLockService.lockWaitAndRetryPolicy("lockWithThrowExceptionPolicy");
+                    log.info("线程ID：{}，获取锁：lockWithThrowExceptionPolicy成功！",Thread.currentThread().getId());
+                }catch(Exception e){
+                    log.error("线程ID：{}，获取锁失败：{}",Thread.currentThread().getId(),e);
+                }finally {
+                    countDownLatch.countDown();
+                    log.info("剩余执行数量：{}",countDownLatch.getCount());
+                }
             });
         }
-        countDownLatch.await();
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         executorService.shutdown();
     }
 
