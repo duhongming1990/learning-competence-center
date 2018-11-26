@@ -9,4 +9,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @Date 2018/9/24 10:15
  */
 public interface SlaveOrganizationRepository extends JpaRepository<Organization,Long> {
+    Organization findOrganizationByOuCode(String ouCode);
 }
