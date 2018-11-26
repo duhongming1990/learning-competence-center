@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户名和密码加密</title>
+    <script src="jsencrypt.min.js"></script>
+    <script src="jquery-1.9.1.min.js"></script>
+</head>
+<body>
+    <form action="/security/login" method="post" id="submitForm">
+        用户名：<input name="userName" type="text"/><br/>
+        密 码：<input name="password" type="text"/><br/>
+
+        用户名（RSA加密）：<textarea name="userNameEncrypt" cols="200" rows="5">
+
+        </textarea><br/>
+        密 码（RSA加密）：<textarea name="passwordEncrypt" cols="200" rows="5">
+
+        </textarea><br/>
+
+        <button id="submitButton">登录</button>
+    </form>
+
+    <script type="text/javascript">
+        $("#submitButton").click(function(){
+            debugger;
+            var userName = $("input[name=userName]").val();
+            var password = $("input[name=password]").val();
+            $("textarea[name=userNameEncrypt]").val(rsaEncrypt(userName));
+            $("textarea[name=passwordEncrypt]").val(rsaEncrypt(password));
+
+            $("#submitForm").submit();
+        });
+
+        function rsaEncrypt(data) {
+            var key ="MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC7rS78PJLTDLcHmF7bSUteQZB7joIyuCx3Z8T5A+KPbFQFPZmXMigDhM4vbzcfrUwcKq+c7X+wQPJ3Poi6VpCGnRbK8ts6+PIH8klS/UT/+LS9V+eEA0fBlD1MwQemJIYUhFbAvlGJ4IBubo9qjOaHJCPlBI93p3WMyp3N4GoONwIDAQAB";
+            var encrypt = new JSEncrypt(key);
+            encrypt.setPublicKey(key);
+            return encrypt.encrypt(data);
+        }
+
+    </script>
+</body>
+</html>

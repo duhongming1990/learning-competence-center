@@ -26,20 +26,33 @@ public class OrgReceiver {
     @RabbitListener(queues = "org.delete")
     @RabbitHandler
     public void delete(String ouCode) {
-        log.info("MQ接收消息-org.delete：{}",ouCode);
-        Organization organizationByOuCode = slaveOrganizationRepository.findOrganizationByOuCode(ouCode);
-        slaveOrganizationRepository.delete(organizationByOuCode);
-        log.info("从库org.delete删除成功！");
+        try {
+            log.info("MQ接收消息-org.delete：{}", ouCode);
+            Organization organizationByOuCode = slaveOrganizationRepository.findOrganizationByOuCode(ouCode);
+            slaveOrganizationRepository.delete(organizationByOuCode);
+            log.info("从库org.delete删除成功！");
+        }catch (Exception e){
+            log.error(e.getLocalizedMessage());
+            log.info("从库org.delete删除失败！");
+            return;
+        }
     }
 
     @RabbitListener(queues = "org.add")
     @RabbitHandler
     public void add(String ouCode) {
-        log.info("MQ接收消息-org.add：{}",ouCode);
-        Organization organization = masterOrganizationRepository.findOrganizationByOuCode(ouCode);
-        organization.setId(null);
-        slaveOrganizationRepository.save(organization);
-        log.info("从库org.add添加成功！");
+        try {
+            log.info("MQ接收消息-org.add：{}", ouCode);
+            Organization organization = masterOrganizationRepository.findOrganizationByOuCode(ouCode);
+            organization.setId(null);
+            slaveOrganizationRepository.save(organization);
+            log.info("从库org.add添加成功！");
+        }catch (Exception e){
+            log.error(e.getLocalizedMessage());
+            log.info("从库org.add添加失败！");
+            return;
+        }
+
     }
 
     @RabbitListener(queues = "org.update")
