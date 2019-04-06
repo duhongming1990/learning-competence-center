@@ -17,10 +17,10 @@ import lombok.Setter;
 @AllArgsConstructor
 @Setter
 @Getter
-@JsonInclude(value = JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class JacksonDemoBean {
 
-    @JsonProperty(value = "deptName")
+    @JsonProperty("deptName")
     private String dept;
 
     private String name;
