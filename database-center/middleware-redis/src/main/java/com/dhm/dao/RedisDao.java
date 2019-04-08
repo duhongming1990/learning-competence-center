@@ -1,5 +1,6 @@
 package com.dhm.dao;
 
+import com.dhm.service.SubscriberService;
 import com.dyuproject.protostuff.LinkedBuffer;
 import com.dyuproject.protostuff.ProtostuffIOUtil;
 import com.dyuproject.protostuff.runtime.RuntimeSchema;
@@ -11,7 +12,6 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.Pipeline;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -371,5 +371,25 @@ public class RedisDao<T> {
             jedis.close();
         }
         return value;
+    }
+
+    public void publish(){
+        Jedis jedis = null;
+        try{
+            jedis = jedisPool.getResource();
+            jedis.publish("news.is","it信息报道");
+        }finally {
+            jedis.close();
+        }
+    }
+
+    public void subscribe(){
+        Jedis jedis = null;
+        try{
+            jedis = jedisPool.getResource();
+            jedis.subscribe(new SubscriberService(),"news.is");
+        }finally {
+            jedis.close();
+        }
     }
 }

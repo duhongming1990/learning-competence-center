@@ -17,6 +17,15 @@ import java.util.*;
 public class RedisDaoTest {
     @Autowired
     private RedisDao redisDao;
+//    @Test
+//    public void testPublish(){
+//        redisDao.publish();
+//    }
+
+//    @Test
+//    public void testSubscribe(){
+//        redisDao.subscribe();
+//    }
     @Test
     public void contextLoads() {
         //String
